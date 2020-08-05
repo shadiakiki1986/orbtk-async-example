@@ -1,6 +1,8 @@
 Useful commands
 
 ```
+sudo apt-get update
+
 # install cargo deps
 sudo apt install build-essential
 
@@ -11,7 +13,8 @@ curl https://sh.rustup.rs -sSf | sh
 sudo apt install libxkbcommon-dev libwayland-cursor0 libwayland-dev cmake libfreetype6-dev libexpat-dev
 
 # how to create this project
-cargo new --bin orbtk-async-example
+#cargo new --bin orbtk-async-example
+git clone git@gitlab.com:shadiakiki1986/orbtk-async-example.git
 
 # cargo-fu
 cargo build
