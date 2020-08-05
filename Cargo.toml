@@ -7,4 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-orbtk = "0.3.1-alpha2"
+# Use develop branch: https://users.rust-lang.org/t/orbtk-minimal-example-not-working/44635
+#orbtk = "0.3.1-alpha2"
+orbtk = { git = "https://github.com/redox-os/orbtk.git", branch= "develop" }
+crossbeam = "0.7.3"
+futures = { version = "0.3", features = ["thread-pool"] }
