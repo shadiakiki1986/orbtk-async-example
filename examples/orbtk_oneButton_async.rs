@@ -1,4 +1,13 @@
-// Based on the calculator example in orbtk repo
+/*
+ * This example builds an orbtk GUI (https://github.com/redox-os/orbtk/) with 2 buttons:
+ * Button 1 (S): Runs some syncronous code (defined in do_sync below and contains a sleep) and shows how the GUI hangs
+ * Button 2 (A): Runs the same sleep code in a separate thread (defined in do_async and main) and shows how the GUI doesn't hang
+ *               Clicking this button shows the async code display to stdout in the terminal from
+ *               which the GUI was built/launched. Clicking it multiple times will repeat the async
+ *               code.
+ *
+ * This was based on the calculator example in orbtk repo
+ */
 use orbtk::{
     prelude::*
 };
@@ -33,7 +42,7 @@ impl MainViewState {
     }
 
     fn do_sync(&mut self, ctx: &mut Context) {
-        main_view(ctx.widget()).set_text("Sync: Sleep 3 seconds");
+        main_view(ctx.widget()).set_text("Sync: Sleep 3 seconds"); // This never really shows up because the GUI loop never moves on to display it before the wake up display below
         let sleep_dur1 = std::time::Duration::from_secs(3);
         std::thread::sleep(sleep_dur1);
         main_view(ctx.widget()).set_text("Sync: wake up");
@@ -186,7 +195,8 @@ fn main() {
     let r2 = rx.clone();
     let future = async move {
         println!("\t\t tw custom worker thread: started");
-        match r2.recv() {
+        while let v2 = r2.recv() {
+        match v2 {
           Ok(_f) => {
             println!("Async thread: Sleep 3 seconds");
             let sleep_dur1 = std::time::Duration::from_secs(3);
@@ -196,6 +206,7 @@ fn main() {
           Err(e) => {
             println!("tw custom worker thread error: {}", e);
           }
+        }
         }
     };
 
