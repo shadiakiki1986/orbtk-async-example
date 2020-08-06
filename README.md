@@ -1,10 +1,13 @@
-Useful commands
+Setting up the dev environment on a fresh Ubuntu server 20.04 machine
 
 ```
 sudo apt-get update
 
 # install cargo deps
 sudo apt install build-essential
+
+# install a desktop GUI
+sudo apt install lxde # fetches 300 MB, 1.6 GB additional disk space, will prompt to choose a display manager (lightdm, ggdm3?)
 
 # install cargo
 curl https://sh.rustup.rs -sSf | sh
@@ -15,13 +18,18 @@ sudo apt install libxkbcommon-dev libwayland-cursor0 libwayland-dev cmake libfre
 # how to create this project
 #cargo new --bin orbtk-async-example
 git clone git@gitlab.com:shadiakiki1986/orbtk-async-example.git
+```
 
-# cargo-fu
+
+cargo-fu
+
+```
 cargo build
 cargo run
 cargo run --example crossbeam_channel
 cargo run --example crossbeam_thread
-cargo run --example orbtk_simple
+cargo run --example orbtk_minimal
+cargo run --example orbtk_oneButton_sync
 ```
 
 Get gui on ec2:
