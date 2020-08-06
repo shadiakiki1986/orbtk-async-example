@@ -5,7 +5,15 @@ use orbtk::{
 use futures::executor::ThreadPool;
 use crossbeam::crossbeam_channel::{Sender};
 
-type FutureSender = Option<Sender<impl Future>>;
+#[derive(Debug, Clone)]
+pub struct MySender(Sender<u32>);
+type FutureSender = Option<MySender>;
+
+impl PartialEq for MySender {
+    fn eq(&self, _other: &Self) -> bool {
+        false
+    }
+}
 
 #[derive(Debug, Copy, Clone)]
 enum Action {
@@ -20,34 +28,32 @@ pub struct MainViewState {
 }
 
 impl MainViewState {
-    fn action(&mut self, Action x) {
+    fn action(&mut self, x: Action) {
         self.action = Some(x);
     }
 
     fn do_sync(&mut self, ctx: &mut Context) {
-        main_view(ctx.widget()).set_text(format!("Sync: Sleep 3 seconds"));
+        main_view(ctx.widget()).set_text("Sync: Sleep 3 seconds");
         let sleep_dur1 = std::time::Duration::from_secs(3);
         std::thread::sleep(sleep_dur1);
-        main_view(ctx.widget()).set_text(format!("Sync: wake up"));
+        main_view(ctx.widget()).set_text("Sync: wake up");
     }
 
     fn do_async(&mut self, ctx: &mut Context) {
-        let future = async {
-            println!("Async thread: Sleep 3 seconds");
-            let sleep_dur1 = std::time::Duration::from_secs(3);
-            std::thread::sleep(sleep_dur1);
-            println!("Async thread: wake up");
-        };
-
-        main_view(ctx.widget()).set_text(format!("Async main: Sleep 3 seconds (also check terminal stdout for async thread)"));
-        self.future_sender.send(future);
-        main_view(ctx.widget()).set_text(format!("Async main: wake up (also check terminal stdout for async thread)"));
+        //\n(also check terminal stdout for async thread)
+        main_view(ctx.widget()).set_text("Async main: Sleep 3 seconds");
+        self.future_sender.as_ref().unwrap().0.send(1);
+        main_view(ctx.widget()).set_text("Async main: wake up");
     }
 }
 
 impl State for MainViewState {
     fn update(&mut self, _: &mut Registry, ctx: &mut Context) {
-        if let Some(_action) = self.action {
+        if self.future_sender.is_none() {
+            self.future_sender = ctx.widget().get::<FutureSender>("future_sender").clone();
+        }
+
+        if let Some(action) = self.action {
             match action {
                 Action::Sync => {
                     self.do_sync(ctx);
@@ -84,7 +90,8 @@ fn generate_operation_button(
 }
 
 widget!(MainView<MainViewState> {
-    text: String16
+    text: String16,
+    future_sender: FutureSender
 });
 
 impl Template for MainView {
@@ -160,8 +167,8 @@ impl Template for MainView {
                                             .add(48.0),
                                     )
                                     // row 0
-                                    .child(generate_operation_button(ctx, id, 'Sync', 0, 5, 0, Action::Sync))
-                                    .child(generate_operation_button(ctx, id, 'Async', 6, 3, 0, Action::Async))
+                                    .child(generate_operation_button(ctx, id, 'S', 0, 5, 0, Action::Sync))
+                                    .child(generate_operation_button(ctx, id, 'A', 6, 3, 0, Action::Async))
                                     .build(ctx),
                             )
                             .build(ctx),
@@ -180,24 +187,26 @@ fn main() {
     let future = async move {
         println!("\t\t tw custom worker thread: started");
         match r2.recv() {
-          Ok(f) => {
-            println!("tw custom worker thread: received future");
-            f.await;
+          Ok(_f) => {
+            println!("Async thread: Sleep 3 seconds");
+            let sleep_dur1 = std::time::Duration::from_secs(3);
+            std::thread::sleep(sleep_dur1);
+            println!("Async thread: wake up");
           },
           Err(e) => {
             println!("tw custom worker thread error: {}", e);
           }
         }
-    }
+    };
 
     let pool = ThreadPool::new().unwrap();
     pool.spawn_ok(future);
 
-    let future_sender: FutureSender = Some(tx);
+    let future_sender: FutureSender = Some(MySender(tx));
 
     Application::new()
-        .window(|ctx| {
-            let main_view = MainView::new();
+        .window(move |ctx| {
+            let mut main_view = MainView::new();
             main_view.future_sender = Some(PropertySource::Value(future_sender.clone()));
             Window::new()
                 .title("OrbTk - async task example")

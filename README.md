@@ -36,6 +36,7 @@ cargo run --example crossbeam_channel
 cargo run --example crossbeam_thread
 cargo run --example orbtk_minimal
 cargo run --example orbtk_oneButton_sync
+cargo run --example orbtk_oneButton_async
 ```
 
 Get gui on ec2:
