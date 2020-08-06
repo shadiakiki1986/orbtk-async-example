@@ -31,7 +31,7 @@ cargo-fu
 ```
 cargo build
 cargo run
-cargo run --example futures_thread
+cargo run --example futures_threadpool
 cargo run --example crossbeam_channel
 cargo run --example crossbeam_thread
 cargo run --example orbtk_minimal
