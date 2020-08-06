@@ -1,3 +1,31 @@
+This repo holds an example implementation for thread listeners in orbtk:
+https://github.com/redox-os/orbtk/issues/243
+
+
+## Usage
+
+There are multiple implementations in the `examples` folder that I used as steps
+to develop the main example `examples/orbtk_oneButton_async.rs`.
+
+To build and run the GUI example running a separate thread:
+
+```
+cargo run --example orbtk_oneButton_async
+```
+
+This example builds an orbtk GUI with 2 buttons:
+- Button 1 (named 'S'): Runs some syncronous code (defined in `do_sync` below and contains a sleep) and shows how the GUI hangs
+- Button 2 (named 'A'): Runs the same sleep code in a separate thread (defined in `do_async` and main) and shows how the GUI doesn't hang
+Clicking this button shows the async code display to stdout in the terminal from
+which the GUI was built/launched. Clicking it multiple times will repeat the async
+code.
+
+The GUI is ugly and could be improved, but this is just a proof-of-concept.
+
+
+
+## Useful commands
+
 Setting up the dev environment on a fresh Ubuntu server 20.04 machine
 
 ```
