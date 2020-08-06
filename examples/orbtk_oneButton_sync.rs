@@ -5,9 +5,8 @@ use orbtk::{
 
 #[derive(Default, AsAny)]
 pub struct MainViewState {
-    input: String,
-    left_side: Option<f64>,
-    action: Option<int>,
+    left_side: Option<u32>,
+    action: Option<u32>,
 }
 
 impl MainViewState {
@@ -16,11 +15,10 @@ impl MainViewState {
     }
 
     fn calculate(&mut self, ctx: &mut Context) {
-        let mut result = 0.0;
+        let mut result = 0;
             if let Some(left_side) = self.left_side {
                 result = left_side + 1;
             }
-        }
 
         main_view(ctx.widget()).set_text(format!("{}", result));
 
@@ -30,8 +28,8 @@ impl MainViewState {
 
 impl State for MainViewState {
     fn update(&mut self, _: &mut Registry, ctx: &mut Context) {
-        if let Some(action) = self.action {
-            self.calculate();
+        if let Some(_action) = self.action {
+            self.calculate(ctx);
             self.action = None;
         }
     }
@@ -41,7 +39,6 @@ fn generate_operation_button(
     ctx: &mut BuildContext,
     id: Entity,
     sight: char,
-    primary: bool,
     column: usize,
     column_span: usize,
     row: usize,
@@ -136,7 +133,7 @@ impl Template for MainView {
                                             .add(48.0),
                                     )
                                     // row 0
-                                    .child(generate_operation_button(ctx, id, 'C', false, 0, 5, 0))
+                                    .child(generate_operation_button(ctx, id, 'C', 0, 5, 0))
                                     .build(ctx),
                             )
                             .build(ctx),
